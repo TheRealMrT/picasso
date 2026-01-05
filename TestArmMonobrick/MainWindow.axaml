@@ -1,0 +1,188 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:TestArmMonobrick.ViewModels"
+        xmlns:controls="using:TestArmMonobrick.Controls"
+        xmlns:converters="using:TestArmMonobrick.Converters"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+        x:Class="TestArmMonobrick.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="NXT Robot Arm Controller - Inverse Kinematics"
+        Width="900" Height="600"
+        MinWidth="700" MinHeight="500">
+    
+    <Window.Resources>
+        <converters:BoolToBrushConverter x:Key="BoolToBrush"/>
+        <converters:BoolToTextConverter x:Key="BoolToText"/>
+    </Window.Resources>
+    
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+    
+    <Grid ColumnDefinitions="*,280" RowDefinitions="*,Auto">
+        
+        <!-- Workspace Canvas -->
+        <Border Grid.Column="0" Grid.Row="0" 
+                BorderBrush="Gray" BorderThickness="1" Margin="10"
+                Background="White" CornerRadius="4">
+            <controls:WorkspaceCanvas
+                CurrentX="{Binding CurrentX}"
+                CurrentY="{Binding CurrentY}"
+                TargetX="{Binding TargetX}"
+                TargetY="{Binding TargetY}"
+                MaxReach="{Binding MaxReach}"
+                MinReach="{Binding MinReach}"
+                UpperArmLength="{Binding UpperArmLength}"
+                ForearmLength="{Binding ForearmLength}"
+                ShoulderAngle="{Binding ShoulderAngle}"
+                ElbowAngle="{Binding ElbowAngle}"/>
+        </Border>
+        
+        <!-- Control Panel -->
+        <Border Grid.Column="1" Grid.Row="0" 
+                Background="#2D2D30" Margin="0,10,10,10"
+                CornerRadius="4" Padding="15">
+            <ScrollViewer>
+                <StackPanel Spacing="15">
+                    
+                    <!-- Connection Section -->
+                    <TextBlock Text="Connection" FontWeight="Bold" FontSize="14" Foreground="White"/>
+                    <StackPanel Spacing="8">
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Type:" 
+                                       Foreground="#CCCCCC" VerticalAlignment="Center" Margin="0,0,10,8"/>
+                            <ComboBox Grid.Row="0" Grid.Column="1" 
+                                      ItemsSource="{Binding ConnectionTypes}"
+                                      SelectedItem="{Binding SelectedConnectionType}"
+                                      HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Port:" 
+                                       Foreground="#CCCCCC" VerticalAlignment="Center" Margin="0,0,10,0"
+                                       IsVisible="{Binding IsBluetoothSelected}"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" 
+                                     Text="{Binding BluetoothPort}"
+                                     Watermark="COM port (e.g., COM3)"
+                                     IsVisible="{Binding IsBluetoothSelected}"/>
+                        </Grid>
+                        
+                        <!-- Simulation mode indicator -->
+                        <Border Background="#3E3E42" CornerRadius="3" Padding="8,4" 
+                                IsVisible="{Binding IsSimulationSelected}">
+                            <TextBlock Text="? Simulation mode - no real hardware" 
+                                       Foreground="#FFA500" FontSize="11"/>
+                        </Border>
+                        
+                        <Grid ColumnDefinitions="*,*" >
+                            <Button Grid.Column="0" Content="Connect" 
+                                    Command="{Binding ConnectCommand}"
+                                    HorizontalAlignment="Stretch" Margin="0,0,4,0"
+                                    Background="#0078D4" Foreground="White"/>
+                            <Button Grid.Column="1" Content="Disconnect" 
+                                    Command="{Binding DisconnectCommand}"
+                                    HorizontalAlignment="Stretch" Margin="4,0,0,0"/>
+                        </Grid>
+                    </StackPanel>
+                    
+                    <Separator Background="#555555"/>
+                    
+                    <!-- Control Section -->
+                    <TextBlock Text="Control" FontWeight="Bold" FontSize="14" Foreground="White"/>
+                    <StackPanel Spacing="8">
+                        <Button Content="?? Home Arm" 
+                                Command="{Binding HomeCommand}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"/>
+                        <Button Content="? Move to Target" 
+                                Command="{Binding MoveToTargetCommand}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Background="#107C10" Foreground="White"/>
+                        <Button Content="? Stop" 
+                                Command="{Binding StopCommand}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Background="#D13438" Foreground="White"/>
+                    </StackPanel>
+                    
+                    <Separator Background="#555555"/>
+                    
+                    <!-- Current Position -->
+                    <TextBlock Text="Current Position" FontWeight="Bold" FontSize="14" Foreground="White"/>
+                    <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" >
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="X:" Foreground="#CCCCCC" VerticalAlignment="Center" Margin="0,0,8,4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CurrentX, StringFormat='{}{0:F1} mm'}" 
+                                   Foreground="White" VerticalAlignment="Center" Margin="0,0,15,4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Y:" Foreground="#CCCCCC" VerticalAlignment="Center" Margin="0,0,8,4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding CurrentY, StringFormat='{}{0:F1} mm'}" 
+                                   Foreground="White" VerticalAlignment="Center" Margin="0,0,0,4"/>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Shoulder:" Foreground="#CCCCCC" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ShoulderAngle, StringFormat='{}{0:F1}°'}" 
+                                   Foreground="White" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Elbow:" Foreground="#CCCCCC" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding ElbowAngle, StringFormat='{}{0:F1}°'}" 
+                                   Foreground="White" VerticalAlignment="Center"/>
+                    </Grid>
+                    
+                    <Separator Background="#555555"/>
+                    
+                    <!-- Target Position -->
+                    <TextBlock Text="Target Position" FontWeight="Bold" FontSize="14" Foreground="White"/>
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" >
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="X:" Foreground="#CCCCCC" VerticalAlignment="Center" Margin="0,0,8,8"/>
+                        <NumericUpDown Grid.Row="0" Grid.Column="1" Value="{Binding TargetX}" 
+                                       Minimum="-300" Maximum="300" Increment="5" 
+                                       FormatString="F1" Margin="0,0,0,8"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Y:" Foreground="#CCCCCC" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding TargetY}" 
+                                       Minimum="-300" Maximum="300" Increment="5" FormatString="F1"/>
+                    </Grid>
+                    <TextBlock Text="?? Click on the workspace to set target" 
+                               FontSize="11" Foreground="#888888" FontStyle="Italic"/>
+                    
+                    <Separator Background="#555555"/>
+                    
+                    <!-- Status -->
+                    <TextBlock Text="Status" FontWeight="Bold" FontSize="14" Foreground="White"/>
+                    <StackPanel Spacing="4">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Ellipse Width="12" Height="12" 
+                                     Fill="{Binding IsConnected, Converter={StaticResource BoolToBrush}, ConverterParameter='Green;Gray'}"/>
+                            <TextBlock Foreground="#CCCCCC" Text="{Binding IsConnected, Converter={StaticResource BoolToText}, ConverterParameter='Connected;Disconnected'}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Ellipse Width="12" Height="12" 
+                                     Fill="{Binding IsHomed, Converter={StaticResource BoolToBrush}, ConverterParameter='Green;Orange'}"/>
+                            <TextBlock Foreground="#CCCCCC" Text="{Binding IsHomed, Converter={StaticResource BoolToText}, ConverterParameter='Homed;Not Homed'}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <Separator Background="#555555"/>
+                    
+                    <!-- Arm Info -->
+                    <TextBlock Text="Arm Configuration" FontWeight="Bold" FontSize="14" Foreground="White"/>
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" >
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Upper Arm:" Foreground="#CCCCCC" Margin="0,0,8,2"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Foreground="White" Text="{Binding UpperArmLength, StringFormat='{}{0:F0} mm'}"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Forearm:" Foreground="#CCCCCC" Margin="0,0,8,2"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Foreground="White" Text="{Binding ForearmLength, StringFormat='{}{0:F0} mm'}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Reach:" Foreground="#CCCCCC" Margin="0,0,8,2"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Foreground="White" Text="{Binding MaxReach, StringFormat='{}{0:F0} mm'}"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Min Reach:" Foreground="#CCCCCC" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Foreground="White" Text="{Binding MinReach, StringFormat='{}{0:F0} mm'}"/>
+                    </Grid>
+                    
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+        
+        <!-- Status Bar -->
+        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" 
+                Background="#007ACC" Padding="10,6">
+            <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="White"/>
+        </Border>
+        
+    </Grid>
+</Window>

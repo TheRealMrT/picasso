@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../TestArmMonobrick.Tests/TestArmMonobrick.Tests.csproj" />
+  <Project Path="TestArmMonobrick.csproj" />
+</Solution>
